@@ -1,0 +1,40 @@
+Given a collection of distinct numbers, return all possible permutations.
+
+For example,
+[1,2,3] have the following permutations:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+这道题和Combination Sum那道题类似，都是深度优先遍历。使用for循环使得其能够遍历所有情况，如果content中已经包含了nums[i]，则说明这是
+之前已经遍历过的，continue。content.remove是为了回溯回去。
+代码：
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        if(nums.length == 0){
+            return result;
+        }
+        backtrack(result, new ArrayList<Integer>(), nums);
+        return result;
+    }
+    public void backtrack(List<List<Integer>> result, List<Integer> content, int[] nums){
+        if(content.size() == nums.length){
+            result.add(new ArrayList<Integer>(content));
+            return;
+        }
+        for(int i = 0; i < nums.length; i++){
+            if(content.contains(nums[i])){
+                continue;
+            }
+            content.add(nums[i]);
+            backtrack(result, content, nums);
+            content.remove(content.size() - 1);
+        }
+    }
+}
