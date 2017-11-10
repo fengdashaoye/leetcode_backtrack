@@ -1,0 +1,79 @@
+Given a set of distinct integers, nums, return all possible subsets (the power set).
+
+Note: The solution set must not contain duplicate subsets.
+
+For example,
+If nums = [1,2,3], a solution is:
+
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+
+思路：这道题跟77题类似，只不过需要在外面套一层圈，给他加长度。嗯，很不错，能蒙对。这里看了一下，并不是所有步骤都能产生结果。
+如对于nums = [1, 2, 3],当length = 3.只有[1, 2, 3]这个结果。
+具体输出的时候发现。
+以位置为例子。
+0的时候进入位置为1的递归，位置为1的时候进入位置为2的递归，位置为2时由于length已减到0，添加到result，返回，此时content删除最后一位，
+即位置为2的数字，此时i+1==2，因为位置为2时length才等于0。然后继续循环，i自加1，
+
+for(0                      输出[1] 进入下一层递归
+   for(1                   输出[1, 2]  进入下一层递归
+      for(2                输出[1,2,3]->进入递归，加到result,返回，没有进入下一层递归,再删除，[1, 2],i++等于3，
+      for(3                退出，这层递归结束，删除,[1]
+   for(2                   输出[1,3] 进入下一层递归
+      for(3                3==max_length，没有进入循环，这层递归结束，删除,[1]
+   for(3                   3==max_length,这层递归结束,删除,[]
+for(1                      输出[2]进入下一层递归
+   for(2                   输出[2,3]进入下一层递归
+      for(3                没有进入循环,因为3==max_length，这层递归结束，删除,[2]
+   for(3                   没有进入循环,因为3==max_length，这层递归结束，删除，[3]
+for(2                      输出[3],进入下一层递归
+   for(3                   3==max_length,这层递归结束,删除,[]
+for(3   结束
+
+那边输出的结果为：length为3时
+1
+12
+123
+13
+2
+23
+3
+
+      
+
+代码：
+class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        for(int i = 0; i <= nums.length; i++){
+            backtrack(result, new ArrayList<Integer>(), nums, 0, nums.length, i);
+        }
+        return result;
+    }
+    public void backtrack(List<List<Integer>> result, List<Integer> content, int[] nums, int start, int max_length, int length){
+        if(length == 0){
+            /*System.out.println("haha");
+            for(int i = 0; i < content.size(); i++){
+                System.out.print(content.get(i));
+            }
+            System.out.println("haha");
+            System.out.println(" ");*/
+            result.add(new ArrayList<Integer>(content));
+            return;
+        }
+        for(int i = start; i < max_length; i++){
+            //System.out.println(i);
+            content.add(nums[i]);
+            backtrack(result, content, nums, i + 1, max_length, length - 1);
+            content.remove(content.size() - 1);
+        }
+    }
+}
