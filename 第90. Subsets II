@@ -1,0 +1,44 @@
+Given a collection of integers that might contain duplicates, nums, return all possible subsets (the power set).
+
+Note: The solution set must not contain duplicate subsets.
+
+For example,
+If nums = [1,2,2], a solution is:
+
+[
+  [2],
+  [1],
+  [1,2,2],
+  [2,2],
+  [1,2],
+  []
+]
+
+思路：跟Subsets那道思路差不多，分别计算不同大小的子集，但是这里需要去重，足以，去重的时候是i > start，而非i > 0
+代码：
+import java.util.Arrays;
+import java.util.List;
+class Solution {
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        Arrays.sort(nums);
+        for(int i = 0; i <= nums.length; i++){
+            backtrack(result, new ArrayList<Integer>(), nums, 0, i);
+        }
+        return result;
+    }
+    public void backtrack(List<List<Integer>> result, List<Integer> content, int[] nums, int start, int length){
+        if(length == 0){
+            result.add(new ArrayList<Integer>(content));
+            return;
+        }
+        for(int i = start; i < nums.length; i++){
+            if(i > start && nums[i] == nums[i - 1]){//去重,不是i>0，是i>start,这样1,2,2,2,2.当子集大小为2时，初始，加入1，然后start变成1，
+                continue;//因为i从start开始,所以开始的1,2客村，后面的1,2不可存。对于2,2.初始时存储2没有问题，然后存储第二个2时因为i从start开始
+            }//没有大于start，所以可以存储进2,2，对于后面由于i不断自加，大于start，其nums[i] == nums[i-1]所以continue.
+            content.add(nums[i]);
+            backtrack(result, content, nums, i + 1, length - 1);
+            content.remove(content.size() - 1);
+        }
+    }
+}
