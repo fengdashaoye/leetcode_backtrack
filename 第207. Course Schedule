@@ -1,0 +1,113 @@
+There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, is it possible for you to finish all courses?
+
+For example:
+
+2, [[1,0]]
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So it is possible.
+
+2, [[1,0],[0,1]]
+There are a total of 2 courses to take. To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+
+Note:
+The input prerequisites is a graph represented by a list of edges, not adjacency matrices. Read more about how a graph is represented.
+You may assume that there are no duplicate edges in the input prerequisites.
+
+思路：这道题我一开始的思路是将他们的关系变化成二维矩阵，然后看图中是否存在环路，判断环路我主要是利用了深度优先遍历。
+不断遍历每一个点，以每一个点为起始点，深度优先遍历，看遍历过程中是否遍历到这个过程之前遍历到的节点，我们用state[]来表示
+在这个过程中节点是否遍历到过。
+注意，如果没有找到环路，在不断返回false前，还原其状态。
+但是这个方法通过的示例为34/37，超时了。
+
+另一种思路是使用拓扑排序
+拓扑排序   
+    
+  （1）在有向图中选一个没有前驱的顶点且输出之   
+  （2）从图中删除该顶点和所有以它为尾的弧。   
+  重复上述两步，直至全部顶点均已输出，或者当前图中不存在无前驱的顶点为止，后一种情况则说明有向图中存在环。
+
+代码：
+class Solution {
+    boolean[] state;
+    boolean result;
+    public boolean canFinish(int numCourses, int[][] prerequisites) {//寻找是否存在环路的过程，使用深度优先遍历
+        if(numCourses <= 1 || prerequisites == null || prerequisites.length <= 0){
+            return true;
+        }
+        
+        
+        int row = prerequisites.length;
+        int line = prerequisites[0].length;
+        /*System.out.println("row: " + row + "line: " + line);
+        for(int i = 0; i < row; i++){
+            for(int j = 0; j < line; j++){
+                System.out.println(prerequisites[i][j]);
+            }
+        }*/
+        
+        state = new boolean[numCourses];
+        int[][] graph = new int[numCourses][numCourses];
+        for(int i = 0; i < row; i++){
+            graph[prerequisites[i][0]][prerequisites[i][1]] = 1;//转换成图
+        }
+        
+        
+        result = true;
+        for(int i = 0; i < numCourses; i++){
+            if(is_ring(i, graph)){
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    public boolean is_ring(int i, int[][] graph){
+        if(state[i] == true){
+            return true;
+        }
+        state[i] = true;
+        for(int j = 0; j < graph.length; j++){
+            if(graph[i][j] == 1){
+                if(is_ring(j, graph)){
+                    return true;
+                }
+            }
+        }
+        state[i] = false;
+        return false;
+    }
+}
+
+代码：
+public boolean canFinish(int numCourses, int[][] prerequisites) {
+    int[][] matrix = new int[numCourses][numCourses]; // i -> j
+    int[] indegree = new int[numCourses];
+    
+    for (int i=0; i<prerequisites.length; i++) {
+        int ready = prerequisites[i][0];
+        int pre = prerequisites[i][1];
+        if (matrix[pre][ready] == 0)
+            indegree[ready]++; //duplicate case
+        matrix[pre][ready] = 1;
+    }
+    
+    int count = 0;
+    Queue<Integer> queue = new LinkedList();
+    for (int i=0; i<indegree.length; i++) {
+        if (indegree[i] == 0) queue.offer(i);
+    }
+    while (!queue.isEmpty()) {
+        int course = queue.poll();
+        count++;
+        for (int i=0; i<numCourses; i++) {
+            if (matrix[course][i] != 0) {
+                if (--indegree[i] == 0)
+                    queue.offer(i);
+            }
+        }
+    }
+    return count == numCourses;
+}
