@@ -1,0 +1,93 @@
+Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+For example,
+Given [10, 9, 2, 5, 3, 7, 101, 18],
+The longest increasing subsequence is [2, 3, 7, 101], therefore the length is 4. Note that there may be more than one LIS combination,
+it is only necessary for you to return the length.
+
+Your algorithm should run in O(n2) complexity.
+
+Follow up: Could you improve it to O(n log n) time complexity?
+
+思路：
+因为对于数组来说，首先是字串，然后是递增字串，返回最长的递增字串的长度。
+对于起点2来说，可以2,5,7,101;也可以2,5,7,18;还可以2,3,7,101或者2,3,7,18还有很多。
+对于字串，首先想到的是backtrack，利用递归，在递归里面加入一个循环。
+但是超时了。。。21/24，第21个用例为[1.....10000]递增。
+但是我加上这一句，就accept了
+if(max == nums.length){
+     return;
+}
+因为对于起点1来说，判断完1,2,3,4.....后还需要判断1,3,4......然后是1,4,5.....
+再换个起点2，对于这种极端情况太耗时了。
+我在判断1,2,3...发现max == nums.length时就直接return;。
+在主函数那一层中如果发现max == nums.length则直接break;这就ac了
+虽然这种方法的效率也非常第低，仅排在0.88%
+
+代码：
+class Solution {
+    int max = 1;
+    public int lengthOfLIS(int[] nums) {
+        if(nums.length <= 1){
+            return nums.length;
+        }
+        int length = nums.length;
+        ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+        for(int i = 0; i < length; i++){
+            ArrayList<Integer> content = new ArrayList<Integer>();
+            content.add(nums[i]);
+            backtrack(nums, i, content, nums[i]);
+            if(max == length){
+                break;
+            }
+        }
+        return max;
+    }
+    public void backtrack(int[] nums, int start, ArrayList<Integer> content, int cur_max){
+        for(int j = start + 1; j < nums.length; j++){
+            if(nums[j] <= cur_max){
+                continue;
+            }
+            content.add(nums[j]);
+            backtrack(nums, j, content, nums[j]);
+            if(content.size() > max){
+                max = content.size();
+            }
+            content.remove(content.size() - 1);
+        }
+    }
+}
+
+这是别人的方法：
+tails is an array storing the smallest tail of all increasing subsequences with length i+1 in tails[i].
+For example, say we have nums = [4,5,6,3], then all the available increasing subsequences are:
+
+len = 1   :      [4], [5], [6], [3]   => tails[0] = 3
+len = 2   :      [4, 5], [5, 6]       => tails[1] = 5
+len = 3   :      [4, 5, 6]            => tails[2] = 6
+We can easily prove that tails is a increasing array. Therefore it is possible to do a binary search in tails array to find the one 
+needs update.
+
+Each time we only do one of the two:
+
+(1) if x is larger than all tails, append it, increase the size by 1
+(2) if tails[i-1] < x <= tails[i], update tails[i]
+Doing so will maintain the tails invariant. The the final answer is just the size.
+public int lengthOfLIS(int[] nums) {
+    int[] tails = new int[nums.length];
+    int size = 0;
+    for (int x : nums) {
+        int i = 0, j = size;
+        while (i != j) {
+            int m = (i + j) / 2;
+            if (tails[m] < x)
+                i = m + 1;
+            else
+                j = m;
+        }
+        tails[i] = x;
+        if (i == size) ++size;
+    }
+    return size;
+}
+// Runtime: 2 ms
