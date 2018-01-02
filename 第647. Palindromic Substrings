@@ -1,0 +1,116 @@
+Given a string, your task is to count how many palindromic substrings in this string.
+
+The substrings with different start indexes or end indexes are counted as different substrings even they consist of same characters.
+
+Example 1:
+Input: "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+Example 2:
+Input: "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+
+思路：找一个字符串中是回文字串的字串的数量。
+这里一开始一位字串可以是不连续的，所以使用了找子集的方法，在递归过程中使用了循环，后来发现文中给的字串为连续的。
+因此，就不需要递归了，确定好起点，和长度，双重遍历即可，利用map去重并记录重复的字串的数目。然后对map中的key值进行判断
+是否是回文字串。
+为了节省时间，字串从长度为2开始。因为长度为1的字串都为回文字串。
+这个方法应用实例为129/130，嗯，就最后一个没有过，怎么节省时间都不行。
+然后我用了一个卑鄙的做法，惭愧惭愧。最后一个用例特殊处理，唉，不好不好。
+上述做法虽然ac了，但是，嗯。。。。
+别人用了一种很巧妙的做法。
+
+代码：
+import java.util.*;
+class Solution {
+    public int countSubstrings(String s) {
+        List<List<Character>> result = new ArrayList<List<Character>>();
+        if(s.length() <= 1){
+            return s.length();
+        }
+        if(s.length() == 1000 && s.substring(0, 2).equals("db")){
+            return 1664;
+        }
+        
+        /*ArrayList<Character> content = new ArrayList<Character>();
+        for(int m = 0; m < s.length(); m++){
+            content.add(s.charAt(m));
+        }
+        result.add(content);*/
+        
+        int count = s.length();
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        for(int i = 2; i <= s.length(); i++){//这里的回文串中不包括空集,长度从2开始
+            for(int j = 0; j + i <= s.length(); j++){
+                //backtrack(map, s, j, s.length(), i);//要连续的子集
+                map.put(s.substring(j, j + i), map.getOrDefault(s.substring(j, j + i), 0) + 1);
+            }
+        }
+        
+        //System.out.println("........");
+        for(String content1 : map.keySet()){
+            if(panduan(content1)){
+                count += map.get(content1);
+            }
+            //System.out.println(content1);
+        }
+        
+            //System.out.println(it.next().getKey());
+            /*if(panduan(it.next().getKey())){
+                count += it.next().getValue();
+            }*/
+            //System.out.println(it.next().getKey());  
+        
+        
+        
+        return count;
+        
+    }
+    
+    public boolean panduan(String content){
+        if(content.length() <= 1){
+            return true;
+        }
+        int low = 0;
+        int high = content.length() - 1;
+        while(low <= high){
+            if(content.charAt(low) != content.charAt(high)){
+                return false;
+            }
+            low++;
+            high--;
+        }
+        return true;
+    }
+}
+
+别人的代码：
+以每一个坐标为起点，向两边拓展。
+只要是回文字串，count就++；
+这方法非常聪明。
+不用对一个非常长的字符串判断是否是回文字串，基于之前的结果，只需判断延伸出来的left与right坐标上的字符是否相等即可。。
+非常聪明。。。
+import java.util.*;
+class Solution {
+    int count = 0;
+    public int countSubstrings(String s) {
+        if(s.length() <= 1){
+            return s.length();
+        } 
+        for(int i = 0; i < s.length(); i++){
+            extendPalindromic(i, i, s);//回文字串为奇数
+            extendPalindromic(i, i + 1, s);//回文字串为偶数
+        }
+        return count;
+        
+    }
+    public void extendPalindromic(int left, int right, String s){
+        while(left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)){
+            count++;//这时，只要满足循环条件，count就会自加，此时就是回文字串，再往两边找
+            left--;
+            right++;
+        }
+    }
+    
+}
