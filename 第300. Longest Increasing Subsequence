@@ -91,3 +91,59 @@ public int lengthOfLIS(int[] nums) {
     return size;
 }
 // Runtime: 2 ms
+
+
+
+动规：
+class Solution {
+    /*设lis[i] 表示索引为 [0...i] 上的数组上的 最长递增子序列。初始时，lis[i]=1，注意，在DP中，初始值是很重要的，它是整个算法运行正确的关键。而初始值       则可以 通过 画一个小的示例来 确定。
+    当 arr[i] > arr[j]，lis[i] = max{lis[j]}+1 ；其中，j 的取值范围为：0,1...i-1
+    当 arr[i] < arr[j]，lis[i] = max{lis[j]} ；其中，j 的取值范围为：0,1...i-1*/
+
+ 
+    public int lengthOfLIS(int[] nums) {
+        /*if(nums.length <= 1){
+            return nums.length;
+        }
+        int[] result = new int[nums.length];
+        Arrays.fill(result, 1);
+        for(int i = 1; i < result.length; i++){
+            for(int j = 0; j < i; j++){
+                if(nums[i] > nums[j]){
+                    if(result[j] + 1 > result[i]){
+                        result[i] = result[j] + 1;
+                    }
+                }else{
+                    if(result[j] > result[i]){
+                        result[i] = result[j];
+                    }
+                }
+            }
+        }
+        return result[result.length - 1];*/
+        //上面会有bug,第15行
+        //arr[i]要大于 j belongs to  0,1,...i-1 中所有的 arr[j]中的最大值，并且 lis[i] 是该最大值 arr[j] 所对应的 lis[j] +1，而不是某个其他的arr[j] 对应的 lis[j]+1
+        
+        //下面这种做法为result[i]代表以i为结尾的最长递增序列
+        if(nums.length <= 1){
+            return nums.length;
+        }
+        int[] result = new int[nums.length];
+        Arrays.fill(result, 1);
+        for(int i = 1; i < result.length; i++){
+            for(int j = 0; j < i; j++){
+                if((nums[i] > nums[j]) && (result[j] + 1 > result[i])){
+                    result[i] = result[j] + 1;
+                }
+            }
+        }
+        int max = result[0];
+        for(int i = 1; i < result.length; i++){
+            if(max < result[i]){
+                max = result[i];
+            }
+        }
+        return max;
+        
+    }
+}
