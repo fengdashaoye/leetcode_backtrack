@@ -76,3 +76,101 @@ class Solution {
         }
     }
 }
+
+递归：
+class Solution {
+    public List<List<Integer>> permuteUnique(int[] nums) { 
+        Arrays.sort(nums);
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        boolean[] used = new boolean[nums.length];
+        if(nums.length == 0){
+            return result;
+        }
+        backtrack(result, new ArrayList<Integer>(), nums, used);
+        return result;
+    }
+    public void backtrack(List<List<Integer>> result, List<Integer> content, int[] nums, boolean[] used){
+        if(content.size() == nums.length){
+            //if(!result.contains(content)),没有用，这里这个contains不是判断是否已经存在content里面的元素，而是判断是否存在content这个元素
+            //上面这一句没有意义。
+            for(int j = 0; j < content.size(); j++){
+                System.out.print(content.get(j));
+                
+            }
+            System.out.println(" ");
+            result.add(new ArrayList<Integer>(content));
+            return;
+        }
+        for(int i = 0; i < nums.length; i++){
+            if(used[i]){//这个已经用过了，content中已经存在了
+                continue;
+            }
+            if(i > 0 && nums[i] == nums[i-1] && !used[nums[i-1]]){//排序后如果相邻的两个节点数值相同，且content没有包含前面那个节点
+                continue;
+            }
+            used[i] = true;
+            content.add(nums[i]);
+            backtrack(result, content, nums, used);
+            used[i] = false;
+            content.remove(content.size() - 1);
+        }
+    }
+}
+全排列：
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        ArrayList<List<Integer>> result = new ArrayList<List<Integer>>();
+        if(nums.length <= 0){
+            return result;
+        }
+        
+        Arrays.sort(nums);
+        LinkedList<Integer> content = new LinkedList<Integer>();
+        for(int i = 0; i < nums.length; i++){
+            content.add(nums[i]);
+        }
+        result.add(content);
+        while(true){
+            int left = nums.length - 1;
+            //因为是left - 1,所以是left > 0.从右往左找到第一个降序的点，如abc，此时left为c，降序点为b
+            //abc为例子,c为left, b为left-1
+            while(left > 0 && nums[left - 1] >= nums[left]){//找到交界点
+                left--;
+            }
+            if(left == 0){
+                break;//从右到左为降序
+            }
+            
+            int right = left;
+            //找到最后一个比降序点(坐标为left - 1)大的值,对应坐标为right,以abc为例，c为right
+            //abc为例right为c，left-1为b
+            while(right < nums.length && nums[right] > nums[left - 1]){
+                right++;
+            }
+            //abc为例子，此时right-1为c,left-1为b
+            swap(nums, left - 1, right - 1);
+            //abc为例子，left为最后一位
+            reverse(nums, left);
+            content = new LinkedList<Integer>();
+            for(int i = 0; i < nums.length; i++){
+                content.add(nums[i]);
+            }
+            result.add(content);
+        }
+        return result;
+        
+    }
+    public void swap(int[] nums, int i, int j){
+        int number = nums[i];
+        nums[i] = nums[j];
+        nums[j] = number;
+    }
+    public void reverse(int[] nums, int start){
+        int end = nums.length - 1;
+        while(start <= end){
+            swap(nums, start, end);
+            start++;
+            end--;
+        }
+    }
+}
